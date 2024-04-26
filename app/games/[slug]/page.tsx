@@ -1,7 +1,7 @@
 import React from 'react';
 import fs from 'fs';
 import type { Metadata } from 'next';
-import { getMarkdownMetaData } from '@/app/CommonFunctions';
+import { getGameMetadata } from '@/app/CommonFunctions';
 import { PageParams } from '@/app/types/global';
 import matter from 'gray-matter';
 import { notFound } from 'next/navigation';
@@ -11,39 +11,39 @@ import UnityGameLoader from '@/app/components/UnityGameLoader';
 
 export async function generateMetadata( { params } : PageParams ): Promise<Metadata> {
     const slug = params.slug;
-    const post = getGameData(slug);
+    const game = getGameData(slug);
 
     return {
-      title: post.data.title,
-      description: post.data.subtitle
+      title: game.data.title,
+      description: game.data.subtitle
     }
 };
 
 export const generateStaticParams = async () => {
-    const posts = getMarkdownMetaData();
+    const games = getGameMetadata();
 
     let slugs : { slug: string } [] = [];
 
-    posts.map((post) => {
-        slugs = [...slugs, { slug : post.slug }]
+    games.map((game) => {
+        slugs = [...slugs, { slug : game.slug }]
     });
 
     return slugs;
 };
 
 const getGameData = ( slug : string ) => {
-    let postData = null;
+    let gameData = null;
 
     try{
         const file = `games/${slug}.md`;
         const post = fs.readFileSync(file, 'utf8');
-        postData = matter(post);
+        gameData = matter(post);
 
     } catch(error) {
         notFound();
     }
 
-    return postData;
+    return gameData;
 };
 
 export default function page( { params } : PageParams ) {
